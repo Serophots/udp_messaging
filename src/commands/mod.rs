@@ -1,2 +1,0 @@
-mod friend;
-mod send;
