@@ -1,6 +1,6 @@
 use ratatui::{
     buffer::Buffer,
-    layout::{Constraint, Layout, Rect},
+    layout::{Constraint, Flex, Layout, Rect},
     style::{Color, Modifier, Style, Styled},
     text::{Line, Span, Text},
     widgets::{Block, Borders, List, ListDirection, ListItem, Paragraph, StatefulWidget, Widget},
@@ -21,14 +21,18 @@ impl Widget for &mut App {
         let [messages_area, contacts_area] =
             Layout::horizontal([Constraint::Min(1), Constraint::Max(16)]).areas(content_area);
 
+        let [contacts_list_area, contacts_new_area] =
+            Layout::vertical([Constraint::Min(1), Constraint::Length(3)]).areas(contacts_area);
+
         self.render_messages(messages_area, buf);
-        self.render_contacts(contacts_area, buf);
+        self.render_contacts_list(contacts_list_area, buf);
+        self.render_contacts_new(contacts_new_area, buf);
         self.render_instructions(instructions_area, buf);
         self.render_input(input_area, buf);
     }
 }
 impl App {
-    fn render_contacts(&mut self, area: Rect, buf: &mut Buffer) {
+    fn render_contacts_list(&mut self, area: Rect, buf: &mut Buffer) {
         //Render contacts
         let contacts = self
             .settings
@@ -42,12 +46,12 @@ impl App {
             .direction(ListDirection::TopToBottom)
             .block(Block::default().borders(Borders::ALL).title("Contacts"))
             .style(match self.focus {
-                AppFocus::Contacts => Style::default().fg(Color::Yellow),
+                AppFocus::ContactsList => Style::default().fg(Color::Yellow),
                 _ => Style::default(),
             })
             .highlight_symbol(">")
             .highlight_style(match self.focus {
-                AppFocus::Contacts => Style::default()
+                AppFocus::ContactsList => Style::default()
                     .add_modifier(Modifier::BOLD)
                     .add_modifier(Modifier::RAPID_BLINK),
                 _ => Style::default()
@@ -56,6 +60,21 @@ impl App {
             });
 
         StatefulWidget::render(contacts, area, buf, &mut self.settings.contacts.state);
+    }
+
+    fn render_contacts_new(&mut self, area: Rect, buf: &mut Buffer) {
+        let text = Text::from("New Contact").style(match self.focus {
+            AppFocus::ContactsNew => Style::default().fg(Color::Black).bg(Color::Yellow),
+            _ => Style::default(),
+        });
+
+        let button = Paragraph::new(text)
+            .block(Block::default().borders(Borders::ALL))
+            .style(match self.focus {
+                AppFocus::ContactsNew => Style::default().fg(Color::Yellow),
+                _ => Style::default(),
+            });
+        Widget::render(button, area, buf);
     }
 
     fn render_messages(&self, area: Rect, buf: &mut Buffer) {

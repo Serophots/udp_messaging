@@ -74,11 +74,12 @@ impl App {
 
 enum AppFocus {
     MessageInput,
-    Contacts,
+    ContactsList,
+    ContactsNew,
 }
 impl Default for AppFocus {
     fn default() -> Self {
-        Self::Contacts
+        Self::ContactsList
     }
 }
 

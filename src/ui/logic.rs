@@ -52,15 +52,16 @@ impl App {
             }
             KeyCode::Tab => {
                 match self.focus {
-                    AppFocus::Contacts => self.focus = AppFocus::MessageInput,
-                    AppFocus::MessageInput => self.focus = AppFocus::Contacts,
+                    AppFocus::ContactsList => self.focus = AppFocus::ContactsNew,
+                    AppFocus::ContactsNew => self.focus = AppFocus::MessageInput,
+                    AppFocus::MessageInput => self.focus = AppFocus::ContactsList,
                 }
                 return;
             }
             _ => {}
         }
         match self.focus {
-            AppFocus::Contacts => match key.code {
+            AppFocus::ContactsList => match key.code {
                 KeyCode::Up => {
                     self.settings.contacts.state.select_previous();
                 }
@@ -73,6 +74,10 @@ impl App {
                 KeyCode::PageDown => {
                     self.settings.contacts.state.select_last();
                 }
+                _ => {}
+            },
+            AppFocus::ContactsNew => match key.code {
+                KeyCode::Enter => {}
                 _ => {}
             },
             AppFocus::MessageInput => match key.code {
